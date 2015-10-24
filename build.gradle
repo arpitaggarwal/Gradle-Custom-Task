@@ -1,0 +1,49 @@
+apply plugin: 'scala'
+apply plugin: 'maven'
+
+task sendMail(type: MailSender)
+
+configurations { antClasspath }
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+     antClasspath 'javax.mail:mail:1.4'
+     antClasspath 'ant:ant-javamail:1.6.5'
+     antClasspath 'javax.activation:activation:1.1.1'
+}
+
+ClassLoader antClassLoader = org.apache.tools.ant.Project.class.classLoader
+configurations.antClasspath.each { File jar ->
+println "Adding to ant classpath : " + jar.absolutePath
+antClassLoader.addURL( jar.toURI().toURL() )
+}
+
+class MailSender extends DefaultTask {
+
+    @TaskAction
+    def sendMail() {
+    def mailParams = [
+        mailhost: "smtp.gmail.com",
+        mailport:"465",
+        subject: "Email Recieved",
+        messagemimetype: "text/plain",
+        user: "aggarwalarpit.89@gmail.com",
+        password:"XXXX",
+        enableStartTLS:"true",
+        ssl:"true"
+    ]
+
+        println 'Mail Sending Start..'
+
+        ant.mail (mailParams) {
+        from (address:'aggarwalarpit@gmail.com')
+        to (address:'aggarwalarpit.89@gmail.com')
+        message ("Here I go through Gradle!!")
+    }
+        println 'Mail Sending End..'
+    }
+}
